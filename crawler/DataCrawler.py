@@ -20,7 +20,7 @@ class DataCrawler:
     def crawl(self):
         if self.data_source == 'VNDIRECT':
             crawler = VndirectDataLoader(self.symbol, self.start_date, self.end_date)
-            crawler.crawl()
+            return crawler.crawl()
 
 
 class BaseDataLoader(ABC):
@@ -39,18 +39,24 @@ class VndirectDataLoader(BaseDataLoader):
         super().__init__(symbols, start_date, end_date)
 
     def crawl(self):
+        price_data = []
         if not isinstance(self.symbols, list):
             symbols = [self.symbols]
         else:
             symbols = self.symbols
 
         for symbol in symbols:
-            self.crawl_one_symbol(str.upper(symbol))
+            price_data = self.crawl_one_symbol(str.upper(symbol))
+
+        return sorted(price_data, key=lambda i: i['date'])
 
     def crawl_one_symbol(self, symbol):
         last_page = self.get_last_page(symbol)
+        stock_data = []
         for i in range(last_page):
-            self.crawl_one_symbol_by_page(symbol, i + 1)
+            data_per_page = self.crawl_one_symbol_by_page(symbol, i + 1)
+            stock_data.extend(data_per_page)
+        return stock_data
 
     def crawl_one_symbol_by_page(self, symbol, page):
         form_data = {
@@ -64,7 +70,7 @@ class VndirectDataLoader(BaseDataLoader):
         soup = BeautifulSoup(r.content, 'html.parser')
         data = soup.find(class_='list_tktt lichsugia')
 
-        history_data = []
+        data_per_page = []
 
         for i, li_tag in enumerate(data.find_all('li')):
             if not li_tag.has_attr('class'):
@@ -93,8 +99,8 @@ class VndirectDataLoader(BaseDataLoader):
                         info['volume_match'] = value
                     if j == 9:
                         info['volume_reconcile'] = value
-                history_data.append(info)
-        print(history_data)
+                data_per_page.append(info)
+        return data_per_page
 
     def get_last_page(self, symbol):
         form_data = {
