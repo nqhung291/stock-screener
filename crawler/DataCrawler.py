@@ -6,7 +6,12 @@ from datetime import date
 
 
 class DataCrawler:
-    def __init__(self, symbols, start_date='', end_date=date.today().strftime("%d/%m/%Y"), data_source='VNDIRECT', *args, **kwargs):
+    def __init__(self,
+                 symbols,
+                 start_date=date.today().strftime("%d/%m/%Y"),
+                 end_date=date.today().strftime("%d/%m/%Y"),
+                 data_source='VNDIRECT',
+                 *args, **kwargs):
         self.symbol = symbols
         self.start_date = start_date
         self.end_date = end_date
@@ -89,6 +94,7 @@ class VndirectDataLoader(BaseDataLoader):
                     if j == 9:
                         info['volume_reconcile'] = value
                 history_data.append(info)
+        print(history_data)
 
     def get_last_page(self, symbol):
         form_data = {
@@ -101,7 +107,10 @@ class VndirectDataLoader(BaseDataLoader):
         r = requests.post(utils.URL_VNDIRECT, form_data, headers=utils.HEADERS)
         soup = BeautifulSoup(r.content, 'html.parser')
         text_div = soup.find('div', class_='paging').get_text()
-        last_page = int(text_div.split()[1].split('/')[1])
+        try:
+            last_page = int(text_div.split()[1].split('/')[1])
+        except IndexError:
+            last_page = int(text_div)
         return last_page
 
 
