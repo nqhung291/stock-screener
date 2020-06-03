@@ -1,0 +1,29 @@
+{
+  "hose": [
+    "VSC", "VSH", "VSI", "VTB", "VTO", "YBM", "YEG", "VNL", "VNM", "VNS", "VOS", "VPB", "VPD", "VPG", "VPH",
+    "VPI", "VPS", "VRC", "VRE", "VCF", "VCI", "VDP", "VDS", "VFG", "VGC", "VHC", "VHM", "VIC", "VID", "VIP",
+    "VIS", "VJC", "VMD", "VND", "VNE", "VNG", "TPC", "TRA", "TRC", "TS4", "TSC", "TTB", "TTF", "TV2", "TVB",
+    "TVS", "TVT", "TYA", "UDC", "UIC", "VCB", "TLD", "TLG", "TLH", "TMP", "TMS", "TMT", "TN1", "TNA", "TNC",
+    "TNI", "TNT", "TPB", "TCR", "TCT", "TDC", "TDG", "TDH", "TDM", "TDW", "TEG", "TGG", "THG", "THI", "TIP",
+    "STB", "STG", "STK", "SVC", "SVI", "SVT", "SZC", "SZL", "TAC", "TCB", "TCD", "TCH", "TCL", "TCM", "SGT",
+    "SHA", "SHI", "SHP", "SII", "SJD", "SJF", "SJS", "SKG", "SMA", "SMB", "SMC", "SPM", "SRC", "SRF", "SSC",
+    "SSI", "SFG", "SFI", "SGN", "PTL", "PVD", "PXI", "PXS", "PXT", "QBS", "QCG", "RAL", "RDP", "REE", "RIC",
+    "ROS", "S4A", "SAB", "SAM", "SAV", "SBA", "SBT", "SBV", "SC5", "SCD", "SCR", "SCS", "PET", "PGI", "PHC",
+    "PHR", "PIT", "PJT", "PMG", "PNC", "PNJ", "POM", "POW", "PPC", "PTB", "PTC", "OGC", "PAC", "PAN", "PC1",
+    "MHC", "MSH", "MSN", "MWG", "NAF", "NAV", "NBB", "NCT", "NHH", "NKG", "NLG", "NNC", "NSC", "NT2", "NTL",
+    "NVL", "NVT", "LCM", "LDG", "LEC", "LGC", "LGL", "LHG", "LIX", "LM8", "LMH", "LSS", "MBB", "MCG", "MDG",
+    "LAF", "LBM", "LCG", "HUB", "HVH", "HVN", "HVX", "IBC", "ICT", "IDI", "IJC", "ILB", "IMP", "ITA", "ITD",
+    "JVC", "KBC", "KDC", "KDH", "KHP", "KMR", "KOS", "KPF", "KSB", "HID", "HII", "HMC", "HNG", "HOT", "HPG",
+    "HQC", "HRC", "HSG", "HSL", "HT1", "HTI", "HTL", "HTN", "HU1", "HU3", "FIT", "FTS", "GAB", "GAS", "GDT",
+    "GEG", "GEX", "GIL", "GMC", "GTA", "HAH", "HAI", "HAP", "HAR", "HAS", "HAX", "HBC", "HCM", "HDB", "HDC",
+    "HDG", "HHS", "CTG", "CTI", "CTS", "CVT", "D2D", "DAG", "DAH", "DBC", "DBD", "DCL", "DCM", "DGW", "DHA",
+    "DHC", "DHG", "DHM", "DIC", "DIG", "DLG", "DMC", "DPG", "DPM", "DPR", "DQC", "DRC", "DRH", "DRL", "DSN",
+    "DTA", "DTL", "DVP", "DXG", "DXV", "EIB", "ELC", "EMC", "EVE", "FCM", "FCN", "FDC", "BSI", "BTP", "BTT",
+    "BVH", "BWE", "C32", "C47", "CAV", "CCL", "CDC", "CEE", "CHP", "CIG", "CII", "CKG", "CLC", "CLG", "CLL",
+    "CLW", "CMG", "CMV", "CMX", "CNG", "COM", "CRC", "CRE", "CSM", "CSV", "CTD", "CTF", "AAA", "ABS", "ABT",
+    "ACC", "ACL", "ADS", "AGG", "AGM", "AGR", "AMD", "ANV", "APC", "APG", "ASM", "ASP", "AST", "ATG", "BBC",
+    "BCE", "BCG", "BFC", "BHN", "BIC", "BID", "BMC", "BMI", "BMP", "EVG", "FIR", "FLC", "FMC", "FPT", "FRT",
+    "FTM", "GMD", "GSP", "GTN", "GVR", "HAG", "HCD", "HPX", "PDN", "PDR", "PGC", "PGD", "PLP", "PLX", "PME",
+    "PVT", "ST8"
+  ]
+}
