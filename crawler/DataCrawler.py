@@ -77,6 +77,7 @@ class VndirectDataLoader(BaseDataLoader):
                 info = {}
                 for j, value in enumerate(li_tag.select('div')):
                     value = utils.clean_text(value.text)
+                    info['symbol'] = symbol
                     if j == 0:
                         info['date'] = value
                     if j == 1:
