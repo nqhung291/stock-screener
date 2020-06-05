@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from psycopg2 import Error, pool
-from psycopg2.extras import execute_batch
+from psycopg2.extras import execute_batch, execute_values
 
 POSTGRES_HOST = 'localhost'
 POSTGRES_PORT = '5432'
