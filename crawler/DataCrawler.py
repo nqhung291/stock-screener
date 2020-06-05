@@ -82,24 +82,24 @@ class VndirectDataLoader(BaseDataLoader):
                         info['date'] = value
                     if j == 1:
                         values = value.split()
-                        info['change_amount'] = values[0]
-                        info['change_percent'] = values[1]
+                        info['change_amount'] = float(values[0])
+                        info['change_percent'] = float(values[1])
                     if j == 2:
-                        info['open'] = value
+                        info['open'] = float(value)
                     if j == 3:
-                        info['high'] = value
+                        info['high'] = float(value)
                     if j == 4:
-                        info['low'] = value
+                        info['low'] = float(value)
                     if j == 5:
-                        info['close'] = value
+                        info['close'] = float(value)
                     if j == 6:
-                        info['avg'] = value
+                        info['avg'] = float(value)
                     if j == 7:
-                        info['adjust'] = value
+                        info['adjust'] = float(value)
                     if j == 8:
-                        info['volume_match'] = value
+                        info['volume_match'] = float(value)
                     if j == 9:
-                        info['volume_reconcile'] = value
+                        info['volume_reconcile'] = float(value) if value != '-' else None
                 data_per_page.append(info)
         return data_per_page
 

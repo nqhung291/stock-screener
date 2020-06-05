@@ -9,21 +9,19 @@ def load_stock_list(exchange):
         return data[str.lower(exchange)]
 
 
-def crawl():
-    for stock in load_stock_list('hose'):
-        crawler = DataCrawler.DataCrawler(stock, start_date='03/06/2020', end_date='03/06/2020')
-        data = crawler.crawl()
-        print(data)
-
-
-def daily_crawl_job():
-    crawl()
-
-
-if __name__ == '__main__':
-    # crawl()
+def save_stock_list():
     stock_list = load_stock_list('hose')
     stock_list_tuple = [tuple(stock.split()) for stock in sorted(stock_list)]
     print(stock_list_tuple)
+    db.save_stock_list(stock_list_tuple)
 
-    # db.save_stock_list(stock_list_tuple)
+
+def crawl():
+    for stock in load_stock_list('hose'):
+        crawler = DataCrawler.DataCrawler(stock, start_date='05/06/2019', end_date='04/06/2020')
+        data = crawler.crawl()
+        db.insert_stock_price(data)
+
+
+if __name__ == '__main__':
+    crawl()

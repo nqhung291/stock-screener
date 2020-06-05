@@ -1,8 +1,8 @@
 from contextlib import contextmanager
 from psycopg2 import Error, pool
-from psycopg2.extras import execute_values
+from psycopg2.extras import execute_batch
 
-POSTGRES_HOST = '172.17.0.2'
+POSTGRES_HOST = 'localhost'
 POSTGRES_PORT = '5432'
 POSTGRES_DB = 'stock'
 POSTGRES_USER = 'postgres'
@@ -31,8 +31,29 @@ def connect_db():
 def save_stock_list(stock_list):
     with connect_db() as (conn, cursor):
         try:
-            insert_query = 'insert into stock.stock_symbol (symbol) values %s'
+            insert_query = 'insert into stock.stock.stock_symbol (symbol) values %s'
             execute_values(cursor, insert_query, stock_list)
+            cursor.close()
+            conn.commit()
+        except Error as error:
+            conn.rollback()
+            print(error)
+
+
+def insert_stock_price(stock_price_list):
+    with connect_db() as (conn, cursor):
+        try:
+            insert_query = 'insert into stock.stock.stock_price (' \
+                           'symbol_id, date, change_amount, change_percent, ' \
+                           'open, high, low, close, avg, adjust, ' \
+                           'volume_match, volume_reconcile' \
+                           ') values (' \
+                           '(select id from stock.stock.stock_symbol where symbol = %(symbol)s),' \
+                           '%(date)s, %(change_amount)s, %(change_percent)s, %(open)s, %(high)s, %(low)s, ' \
+                           '%(close)s, %(avg)s, %(adjust)s, %(volume_match)s, %(volume_reconcile)s' \
+                           ')'
+
+            execute_batch(cursor, insert_query, stock_price_list)
             cursor.close()
             conn.commit()
         except Error as error:
