@@ -1,8 +1,9 @@
 from contextlib import contextmanager
 from psycopg2 import Error, pool
 from psycopg2.extras import execute_batch, execute_values
+from datetime import datetime, timedelta
 
-POSTGRES_HOST = 'localhost'
+POSTGRES_HOST = '172.17.0.2'
 POSTGRES_PORT = '5432'
 POSTGRES_DB = 'stock'
 POSTGRES_USER = 'postgres'
@@ -58,4 +59,70 @@ def insert_stock_price(stock_price_list):
             conn.commit()
         except Error as error:
             conn.rollback()
+            print(error)
+
+
+def get_stock_symbol():
+    with connect_db() as (conn, cursor):
+        try:
+            query = 'select symbol from stock.stock.stock_symbol'
+            cursor.execute(query)
+            # iterate through result set
+            while True:
+                row = cursor.fetchone()
+                if not row:
+                    break
+                yield row[0]
+        except Error as error:
+            print(error)
+
+
+# def get_close_price(symbol):
+#     initial_date = (datetime.today() - timedelta(days=300)).strftime('%Y-%m-%d')
+#     with connect_db() as (conn, cursor):
+#         try:
+#             query = 'select close ' \
+#                     'from stock.stock.stock_price as p ' \
+#                     'inner join stock.stock.stock_symbol as s on p.symbol_id = s.id ' \
+#                     'where symbol = \'{symbol}\'' \
+#                     'and date >= \'{date}\''.format(symbol=symbol, date=initial_date)
+#             cursor.execute(query)
+#             list_result = []
+#             while True:
+#                 row = cursor.fetchone()
+#                 if not row:
+#                     break
+#                 list_result.append(row[0])
+#             cursor.close()
+#             conn.commit()
+#             return list_result
+#         except Error as error:
+#             print(error)
+
+
+def get_price(symbol):
+    initial_date = (datetime.today() - timedelta(days=300)).strftime('%Y-%m-%d')
+    with connect_db() as (conn, cursor):
+        try:
+            query = 'select open, high, low, close ' \
+                    'from stock.stock.stock_price as p ' \
+                    'inner join stock.stock.stock_symbol as s on p.symbol_id = s.id ' \
+                    'where symbol = \'{symbol}\'' \
+                    'and date >= \'{date}\''.format(symbol=symbol, date=initial_date)
+            cursor.execute(query)
+            open = []
+            high = []
+            low = []
+            close = []
+            while True:
+                row = cursor.fetchone()
+                if not row:
+                    break
+                open.append(row[0])
+                high.append(row[1])
+                low.append(row[2])
+                close.append(row[3])
+            cursor.close()
+            return open, high, low, close
+        except Error as error:
             print(error)
