@@ -77,29 +77,6 @@ def get_stock_symbol():
             print(error)
 
 
-# def get_close_price(symbol):
-#     initial_date = (datetime.today() - timedelta(days=300)).strftime('%Y-%m-%d')
-#     with connect_db() as (conn, cursor):
-#         try:
-#             query = 'select close ' \
-#                     'from stock.stock.stock_price as p ' \
-#                     'inner join stock.stock.stock_symbol as s on p.symbol_id = s.id ' \
-#                     'where symbol = \'{symbol}\'' \
-#                     'and date >= \'{date}\''.format(symbol=symbol, date=initial_date)
-#             cursor.execute(query)
-#             list_result = []
-#             while True:
-#                 row = cursor.fetchone()
-#                 if not row:
-#                     break
-#                 list_result.append(row[0])
-#             cursor.close()
-#             conn.commit()
-#             return list_result
-#         except Error as error:
-#             print(error)
-
-
 def get_price(symbol):
     initial_date = (datetime.today() - timedelta(days=300)).strftime('%Y-%m-%d')
     with connect_db() as (conn, cursor):
