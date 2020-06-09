@@ -44,6 +44,6 @@ if __name__ == '__main__':
     # print(result3)
     # print(result4)
     # print(db.pd_get_stock('VCB'))
-    ta.bounce_strategy()
+    ta.bounce_strategy_backtest()
 
 

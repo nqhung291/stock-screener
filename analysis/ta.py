@@ -1,6 +1,7 @@
 from talib import abstract
 from db import db
 import numpy as np
+from analysis.pattern import *
 
 prior_date = -1
 
@@ -26,12 +27,40 @@ def bounce_strategy_backtest():
     for symbol in db.get_stock_symbol():
         (open, high, low, close, date) = db.get_price(symbol)
         doji_list = abstract.CDLDOJI(np.array(open), np.array(high), np.array(low), np.array(close))
-        for p_date in range(len(open)):
-            ema_18 = np.round(abstract.EMA(np.array(close), timeperiod=18), 4)[p_date]
-            ema_50 = np.round(abstract.EMA(np.array(close), timeperiod=50), 4)[p_date]
+        list_ema_18 = np.round(abstract.EMA(np.array(close), timeperiod=18), 4)
+        list_ema_50 = np.round(abstract.EMA(np.array(close), timeperiod=50), 4)
 
-            if doji_list[p_date] and low[p_date] <= ema_18 < close[p_date] and open[p_date] > ema_18:
-                print('Bounce 18', symbol, (close[p_date]), (ema_18, ema_50), date[p_date])
+        for i in range(1, len(open)):
+            ema_18 = list_ema_18[i]
+            ema_50 = list_ema_50[i]
+            reversal_candle = {
+                'open': open[i - 1],
+                'high': high[i - 1],
+                'low': low[i - 1],
+                'close': close[i - 1],
+            }
+            confirmation_candle = {
+                'open': open[i],
+                'high': high[i],
+                'low': low[i],
+                'close': close[i],
+            }
 
-            if doji_list[p_date] and low[p_date] <= ema_50 < close[p_date] and open[p_date] > ema_50:
-                print('Bounce 50', symbol, (close[p_date]), (ema_18, ema_50), date[p_date])
+            if single_candle_reversal(doji_list[i], reversal_candle, confirmation_candle, ema_18):
+                print('Single candle bounce 18 + confirmation', symbol, date[i])
+            if single_candle_reversal(doji_list[i], reversal_candle, confirmation_candle, ema_50):
+                print('Single candle bounce 50 + confirmation', symbol, date[i])
+
+            # double candle reversal pattern
+            if i > 1:
+                prev_reversal_low = low[i-2]
+                if basic_two_candle_reversal(
+                    prev_reversal_low, reversal_candle, confirmation_candle, ema_18
+                ):
+                    print('2 Candle reversal + Confirmation 18', symbol, date[i])
+                if basic_two_candle_reversal(
+                    prev_reversal_low, reversal_candle, confirmation_candle, ema_50
+                ):
+                    print('2 Candle reversal + Confirmation 50', symbol, date[i])
+
+
