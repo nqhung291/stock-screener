@@ -33,6 +33,12 @@ def bounce_strategy_backtest():
         for i in range(1, len(open)):
             ema_18 = list_ema_18[i]
             ema_50 = list_ema_50[i]
+            prev_reversal = {
+                'open': open[i - 2],
+                'high': high[i - 2],
+                'low': low[i - 2],
+                'close': close[i - 2],
+            }
             reversal_candle = {
                 'open': open[i - 1],
                 'high': high[i - 1],
@@ -53,14 +59,20 @@ def bounce_strategy_backtest():
 
             # double candle reversal pattern
             if i > 1:
-                prev_reversal_low = low[i-2]
                 if basic_two_candle_reversal(
-                    prev_reversal_low, reversal_candle, confirmation_candle, ema_18
+                    prev_reversal['low'], reversal_candle, confirmation_candle, ema_18
                 ):
                     print('2 Candle reversal + Confirmation 18', symbol, date[i])
                 if basic_two_candle_reversal(
-                    prev_reversal_low, reversal_candle, confirmation_candle, ema_50
+                    prev_reversal['low'], reversal_candle, confirmation_candle, ema_50
                 ):
                     print('2 Candle reversal + Confirmation 50', symbol, date[i])
-
+                if inside_bar_two_candle_reversal(
+                    prev_reversal, reversal_candle, confirmation_candle, ema_18
+                ):
+                    print('2 Candle reversal inside bar + Confirmation 18', symbol, date[i])
+                if inside_bar_two_candle_reversal(
+                        prev_reversal, reversal_candle, confirmation_candle, ema_50
+                ):
+                    print('2 Candle reversal inside bar + Confirmation 50', symbol, date[i])
 
