@@ -48,10 +48,14 @@ class VndirectDataLoader(BaseDataLoader):
         for symbol in symbols:
             price_data = self.crawl_one_symbol(str.upper(symbol))
 
-        return sorted(price_data, key=lambda i: i['date'])
+        if price_data is not None:
+            return sorted(price_data, key=lambda i: i['date'])
+        return price_data
 
     def crawl_one_symbol(self, symbol):
         last_page = self.get_last_page(symbol)
+        if last_page == 0:
+            return None
         stock_data = []
         for i in range(last_page):
             data_per_page = self.crawl_one_symbol_by_page(symbol, i + 1)
@@ -113,7 +117,9 @@ class VndirectDataLoader(BaseDataLoader):
         }
         r = requests.post(utils.URL_VNDIRECT, form_data, headers=utils.HEADERS)
         soup = BeautifulSoup(r.content, 'html.parser')
-        text_div = soup.find('div', class_='paging').get_text()
+        text_div = soup.find('div', class_='paging').get_text().strip()
+        if text_div == '':
+            return 0
         try:
             last_page = int(text_div.split()[1].split('/')[1])
         except IndexError:

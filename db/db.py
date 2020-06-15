@@ -52,7 +52,7 @@ def insert_stock_price(stock_price_list):
                            '(select id from stock.stock.stock_symbol where symbol = %(symbol)s),' \
                            '%(date)s, %(change_amount)s, %(change_percent)s, %(open)s, %(high)s, %(low)s, ' \
                            '%(close)s, %(avg)s, %(adjust)s, %(volume_match)s, %(volume_reconcile)s' \
-                           ')'
+                           ') on conflict on constraint symbol_id_date_unique do nothing'
 
             execute_batch(cursor, insert_query, stock_price_list)
             cursor.close()

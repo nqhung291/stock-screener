@@ -1,6 +1,5 @@
 from crawler import DataCrawler
 from db import db
-from analysis import ta
 import json
 
 
@@ -18,10 +17,21 @@ def save_stock_list():
 
 
 def crawl():
-    for stock in load_stock_list('hose'):
-        crawler = DataCrawler.DataCrawler(stock, start_date='05/06/2019', end_date='04/06/2020')
+    for stock in db.get_stock_symbol():
+        crawler = DataCrawler.DataCrawler(stock, start_date='05/06/2020')
         data = crawler.crawl()
+        if data is not None:
+            db.insert_stock_price(data)
+        print('done crawl', stock)
+
+
+def crawl_one_stock():
+    crawler = DataCrawler.DataCrawler('VCB', start_date='11/06/2020', end_date='12/06/2020')
+    data = crawler.crawl()
+    if data is not None:
         db.insert_stock_price(data)
+    print(data)
 
 
-
+if __name__ == '__main__':
+    crawl_one_stock()
