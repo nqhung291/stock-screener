@@ -37,12 +37,18 @@ def bounce_strategy_backtest():
             }
             if i > 1:
                 candle_pattern = False
-                if single_candle_reversal(doji_list[i - 1], reversal_candle, confirmation_candle, ema_18):
+                if single_candle_reversal(reversal_candle, confirmation_candle, ema_18):
                     candle_pattern = True
-                    # print('Doji bounce 18 + confirmation', symbol, date[i])
-                if single_candle_reversal(doji_list[i - 1], reversal_candle, confirmation_candle, ema_50):
+                    # print('Single candle bounce 18 + confirmation', symbol, date[i])
+                if single_candle_reversal(reversal_candle, confirmation_candle, ema_50):
                     candle_pattern = True
-                    # print('Doji bounce 50 + confirmation', symbol, date[i])
+                    # print('Single candle bounce 50 + confirmation', symbol, date[i])
+                if doji_candle_reversal(doji_list[i-1], reversal_candle, confirmation_candle, ema_18):
+                    candle_pattern = True
+                    # print('Doji candle bounce 18 + confirmation', symbol, date[i])
+                if doji_candle_reversal(doji_list[i-1], reversal_candle, confirmation_candle, ema_50):
+                    candle_pattern = True
+                    # print('Doji candle bounce 50 + confirmation', symbol, date[i])
                 else:
                     if basic_two_candle_reversal(
                             prev_reversal['low'], reversal_candle, confirmation_candle, ema_18
@@ -65,6 +71,14 @@ def bounce_strategy_backtest():
                         ):
                             candle_pattern = True
                             # print('2 Candle reversal inside bar + Confirmation 50', symbol, date[i])
+                        if two_candle_reversal_trade_through(
+                                prev_reversal, reversal_candle, confirmation_candle, ema_18
+                        ):
+                            candle_pattern = True
+                        if two_candle_reversal_trade_through(
+                                prev_reversal, reversal_candle, confirmation_candle, ema_50
+                        ):
+                            candle_pattern = True
                 if candle_pattern is True:
                     if slowk[i] < 30:
                         enter_trade = False
@@ -75,15 +89,16 @@ def bounce_strategy_backtest():
                             macd_signal_period = macdsignal[i-4:i+1]
                             if not np.isnan(macd_period).any() \
                                     and not np.isnan(macd_signal_period).any() \
-                                    and macd_period < macd_signal_period:
-                                print('bearish enter trade')
+                                    and np.all(macd_period < macd_signal_period):
                                 enter_trade = True
-
                         if enter_trade:
                             sl = confirmation_candle['low'] - 0.05
                             entry = confirmation_candle['high'] + 0.05
                             tp = entry + (entry - sl) * 2
-                            print('Enter ', symbol, date[i], (np.round(sl, 2), np.round(entry, 2), np.round(tp, 2)))
+                            print('Enter', symbol, date[i],
+                                  '| sl:', np.round(sl, 2),
+                                  '| entry:', np.round(entry, 2),
+                                  '| tp:', np.round(tp, 2))
 
 
 if __name__ == '__main__':
