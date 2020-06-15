@@ -77,15 +77,16 @@ def get_stock_symbol():
             print(error)
 
 
-def get_price(symbol):
-    initial_date = (datetime.today() - timedelta(days=300)).strftime('%Y-%m-%d')
+def get_price(symbol, end_date=datetime.today()):
+    initial_date = (end_date - timedelta(days=300)).strftime('%Y-%m-%d')
     with connect_db() as (conn, cursor):
         try:
             query = 'select open, high, low, close, to_char(date, \'YYYY-MM-DD\') as date ' \
                     'from stock.stock.stock_price as p ' \
                     'inner join stock.stock.stock_symbol as s on p.symbol_id = s.id ' \
                     'where symbol = \'{symbol}\'' \
-                    'and date >= \'{date}\' order by date'.format(symbol=symbol, date=initial_date)
+                    'and date >= \'{initial_date}\' and date <= \'{end_date}\'  order by date'\
+                .format(symbol=symbol, initial_date=initial_date, end_date=end_date.strftime('%Y-%m-%d'))
             cursor.execute(query)
             open = []
             high = []

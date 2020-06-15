@@ -1,6 +1,8 @@
 from crawler import DataCrawler
 from db import db
 import json
+from analysis import ta
+from datetime import datetime, date, timedelta
 
 
 def load_stock_list(exchange):
@@ -34,4 +36,14 @@ def crawl_one_stock():
 
 
 if __name__ == '__main__':
-    crawl_one_stock()
+    start_date = date(2020, 5, 1)
+    end_date = date.today()
+    delta = timedelta(days=1)
+
+    while start_date <= end_date:
+        stock_list = ta.bounce_strategy(start_date)
+        if len(stock_list) > 0:
+            print(start_date, stock_list)
+        else:
+            print(start_date, 'nothing')
+        start_date += delta
