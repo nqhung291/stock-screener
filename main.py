@@ -20,11 +20,13 @@ def save_stock_list():
 
 def crawl():
     for stock in db.get_stock_symbol():
-        crawler = DataCrawler.DataCrawler(stock, start_date='05/06/2020')
+        crawler = DataCrawler.DataCrawler(stock)
         data = crawler.crawl()
         if data is not None:
             db.insert_stock_price(data)
-        print('done crawl', stock)
+            print('done crawl', stock)
+        else:
+            print('crawl error', stock)
 
 
 def crawl_one_stock():
@@ -36,14 +38,8 @@ def crawl_one_stock():
 
 
 if __name__ == '__main__':
-    start_date = date(2020, 5, 1)
-    end_date = date.today()
-    delta = timedelta(days=1)
-
-    while start_date <= end_date:
-        stock_list = ta.bounce_strategy(start_date)
-        if len(stock_list) > 0:
-            print(start_date, stock_list)
-        else:
-            print(start_date, 'nothing')
-        start_date += delta
+    crawl()
+    bounce_watch_list, bounce_enter_list, ip_watch_list = ta.screener(date.today())
+    print('Bounce WATCHING list |', date.today(), bounce_watch_list)
+    print('Impulse pullback WATCHING list |', date.today(), ip_watch_list)
+    print('Bounce ENTER list |', date.today(), bounce_enter_list)

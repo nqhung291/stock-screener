@@ -1,7 +1,9 @@
 from talib import abstract
-from db import db
 import numpy as np
 from analysis.pattern import *
+from db import db
+from analysis import ta
+from datetime import date, timedelta
 
 
 def bounce_strategy_backtest():
@@ -43,10 +45,10 @@ def bounce_strategy_backtest():
                 if single_candle_reversal(reversal_candle, confirmation_candle, ema_50):
                     candle_pattern = True
                     # print('Single candle bounce 50 + confirmation', symbol, date[i])
-                if doji_candle_reversal(doji_list[i-1], reversal_candle, confirmation_candle, ema_18):
+                if doji_candle_reversal(doji_list[i - 1], reversal_candle, confirmation_candle, ema_18):
                     candle_pattern = True
                     # print('Doji candle bounce 18 + confirmation', symbol, date[i])
-                if doji_candle_reversal(doji_list[i-1], reversal_candle, confirmation_candle, ema_50):
+                if doji_candle_reversal(doji_list[i - 1], reversal_candle, confirmation_candle, ema_50):
                     candle_pattern = True
                     # print('Doji candle bounce 50 + confirmation', symbol, date[i])
                 else:
@@ -85,8 +87,8 @@ def bounce_strategy_backtest():
                         if macd[i] > macdsignal[i]:  # if macd is bullish
                             enter_trade = True
                         else:
-                            macd_period = macd[i-4:i+1]
-                            macd_signal_period = macdsignal[i-4:i+1]
+                            macd_period = macd[i - 4:i + 1]
+                            macd_signal_period = macdsignal[i - 4:i + 1]
                             if not np.isnan(macd_period).any() \
                                     and not np.isnan(macd_signal_period).any() \
                                     and np.all(macd_period < macd_signal_period):
@@ -102,4 +104,14 @@ def bounce_strategy_backtest():
 
 
 if __name__ == '__main__':
-    bounce_strategy_backtest()
+    start_date = date(2020, 6, 15)
+    end_date = date.today()
+    delta = timedelta(days=1)
+
+    while start_date <= end_date:
+        bounce_watch_list, bounce_enter_list, ip_watch_list = ta.screener(start_date)
+        print('Bounce watching list |', start_date, bounce_watch_list)
+        print('Impulse pullback watching list |', start_date, ip_watch_list)
+        print('Bounce enter list |', start_date, bounce_enter_list)
+        print('==============================================')
+        start_date += delta
