@@ -7,21 +7,27 @@ today = -1
 
 
 def screener(end_date):
-    bounce_watch_list = []
-    bounce_enter_list = []
-    ip_watch_list = []
-    for symbol in db.get_stock_symbol():
+    bounce_watch_dict = {}
+    bounce_enter_dict = {}
+    ip_watch_dict = {}
+    for (symbol, exchange) in db.get_stock_symbol():
         open, high, low, close, date = db.get_price(symbol, end_date)
         result = bounce_strategy(symbol, open, high, low, close)
         if result and result[1] == 'watch':
+            bounce_watch_list = bounce_watch_dict.get(exchange, [])
             bounce_watch_list.append(symbol)
+            bounce_watch_dict[exchange] = bounce_watch_list
         elif result and result[1] == 'enter':
+            bounce_enter_list = bounce_enter_dict.get(exchange, [])
             bounce_enter_list.append(symbol)
+            bounce_enter_dict[exchange] = bounce_enter_list
 
         result = impulse_pullback(symbol, open, high, low, close)
         if result and result[1] == 'watch':
+            ip_watch_list = ip_watch_dict.get(exchange, [])
             ip_watch_list.append(symbol)
-    return bounce_watch_list, bounce_enter_list, ip_watch_list
+            ip_watch_dict[exchange] = ip_watch_list
+    return bounce_watch_dict, bounce_enter_dict, ip_watch_dict
 
 
 def bounce_strategy(symbol, open, high, low, close):
@@ -91,10 +97,6 @@ def bounce_strategy(symbol, open, high, low, close):
     if indicator:
         result = (symbol, 'watch')
         if is_confirmation_candle(reversal_candle, confirmation_candle):
-            # sl = np.round(confirmation_candle['low'] - 0.05, 2)
-            # entry = np.round(confirmation_candle['high'] + 0.05, 2)
-            # tp = np.round(entry + (entry - sl) * 2, 2)
-            # signal = f'{symbol} | sl: {sl} | entry: {entry} | tp: {tp} | strategy: B'
             result = (symbol, 'enter')
     return result
 

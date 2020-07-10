@@ -32,7 +32,7 @@ def connect_db():
 def save_stock_list(stock_list):
     with connect_db() as (conn, cursor):
         try:
-            insert_query = 'insert into stock.stock.stock_symbol (symbol) values %s'
+            insert_query = 'insert into stock.stock.stock_symbol (symbol, exchange) values %s'
             execute_values(cursor, insert_query, stock_list)
             cursor.close()
             conn.commit()
@@ -62,17 +62,25 @@ def insert_stock_price(stock_price_list):
             print(error)
 
 
-def get_stock_symbol():
+def get_stock_symbol(exchange=None):
     with connect_db() as (conn, cursor):
         try:
-            query = 'select symbol from stock.stock.stock_symbol'
-            cursor.execute(query)
+            if exchange is None:
+                query = 'select symbol, exchange from stock.stock.stock_symbol'
+                cursor.execute(query)
+            else:
+                query = 'select symbol, exchange from stock.stock.stock_symbol where exchange in %(list_exchange)s'
+                if not isinstance(exchange, list):
+                    exchange = list(exchange.split())
+                cursor.execute(query, {
+                    'list_exchange': tuple(exchange)
+                })
             # iterate through result set
             while True:
                 row = cursor.fetchone()
                 if not row:
                     break
-                yield row[0]
+                yield row
         except Error as error:
             print(error)
 

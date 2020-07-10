@@ -12,21 +12,21 @@ def load_stock_list(exchange):
 
 
 def save_stock_list():
-    stock_list = load_stock_list('hose')
-    stock_list_tuple = [tuple(stock.split()) for stock in sorted(stock_list)]
-    print(stock_list_tuple)
+    exchange = 'HNX'
+    stock_list = load_stock_list(exchange)
+    stock_list_tuple = [(stock, exchange) for stock in sorted(stock_list)]
     db.save_stock_list(stock_list_tuple)
 
 
-def crawl(crawl_date=date.today().strftime("%d/%m/%Y")):
-    for stock in db.get_stock_symbol():
-        crawler = DataCrawler.DataCrawler(stock, start_date=crawl_date, end_date=crawl_date)
+def crawl(exchange=None, start_date=date.today().strftime("%d/%m/%Y"), end_date=date.today().strftime("%d/%m/%Y")):
+    for (stock, exchange) in db.get_stock_symbol(exchange):
+        crawler = DataCrawler.DataCrawler(stock, start_date=start_date, end_date=end_date)
         data = crawler.crawl()
         if data is not None:
             db.insert_stock_price(data)
-            print('done crawl', stock)
+            print('done crawl', exchange, ':', stock)
         else:
-            print('crawl error', stock)
+            print('ERROR crawl', exchange, ':', stock)
 
 
 def crawl_one_stock():
@@ -37,9 +37,13 @@ def crawl_one_stock():
     print(data)
 
 
-if __name__ == '__main__':
-    crawl()
+def run_daily_crawl():
+    # crawl()
     bounce_watch_list, bounce_enter_list, ip_watch_list = ta.screener(date.today())
     print('Bounce WATCHING list |', date.today(), bounce_watch_list)
     print('Impulse pullback WATCHING list |', date.today(), ip_watch_list)
     print('Bounce ENTER list |', date.today(), bounce_enter_list)
+
+
+if __name__ == '__main__':
+    run_daily_crawl()

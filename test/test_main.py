@@ -7,7 +7,7 @@ from datetime import date, timedelta
 
 
 def bounce_strategy_backtest():
-    for symbol in db.get_stock_symbol():
+    for (symbol, exchange) in db.get_stock_symbol():
         (open, high, low, close, date) = db.get_price(symbol)
         doji_list = abstract.CDLDOJI(np.array(open), np.array(high), np.array(low), np.array(close))
         macd, macdsignal, macdhist = abstract.MACD(np.array(close), fastperiod=50, slowperiod=100, signalperiod=9)
