@@ -18,9 +18,9 @@ def save_stock_list():
     db.save_stock_list(stock_list_tuple)
 
 
-def crawl():
+def crawl(crawl_date=date.today().strftime("%d/%m/%Y")):
     for stock in db.get_stock_symbol():
-        crawler = DataCrawler.DataCrawler(stock)
+        crawler = DataCrawler.DataCrawler(stock, start_date=crawl_date, end_date=crawl_date)
         data = crawler.crawl()
         if data is not None:
             db.insert_stock_price(data)

@@ -103,7 +103,7 @@ def impulse_pullback(symbol, open, high, low, close):
     ema_6 = np.round(abstract.EMA(np.array(close), timeperiod=6), 4)[-3:]
     ema_18 = np.round(abstract.EMA(np.array(close), timeperiod=18), 4)[-3:]
     macd, macdsignal, macdhist = abstract.MACD(np.array(close), fastperiod=12, slowperiod=26, signalperiod=9)[-3:]
-
+    result = None
     cross_signal = False
     if ema_6[-1] > ema_18[-1] and np.any([i < j for i, j in zip(ema_6[:-1], ema_18[:-1])]):
         cross_signal = True
