@@ -2,11 +2,15 @@ from talib import abstract
 from db import db
 import numpy as np
 from analysis.pattern import *
-
+from datetime import date
+import datetime
 today = -1
 
 
-def screener(end_date):
+def screener(end_date=date.today()):
+    if type(end_date) is str:
+        end_date = datetime.datetime.strptime(end_date, '%d/%m/%Y').date()
+
     bounce_watch_dict = {}
     bounce_enter_dict = {}
     ip_watch_dict = {}

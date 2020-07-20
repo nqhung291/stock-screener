@@ -24,9 +24,9 @@ def crawl(exchange=None, start_date=date.today().strftime("%d/%m/%Y"), end_date=
         data = crawler.crawl()
         if data is not None:
             db.insert_stock_price(data)
-            print('done crawl', exchange, ':', stock)
+            print('done crawl', exchange, ':', stock, 'from:', start_date, 'to:', end_date)
         else:
-            print('ERROR crawl', exchange, ':', stock)
+            print('ERROR crawl', exchange, ':', stock, 'from:', start_date, 'to:', end_date)
 
 
 def crawl_one_stock():
@@ -39,10 +39,11 @@ def crawl_one_stock():
 
 def run_daily_crawl():
     # crawl()
-    bounce_watch_list, bounce_enter_list, ip_watch_list = ta.screener(date.today())
-    print('Bounce WATCHING list |', date.today(), bounce_watch_list)
-    print('Impulse pullback WATCHING list |', date.today(), ip_watch_list)
-    print('Bounce ENTER list |', date.today(), bounce_enter_list)
+    screen_date = '15/07/2020'
+    bounce_watch_list, bounce_enter_list, ip_watch_list = ta.screener(screen_date)
+    print('Bounce WATCHING list |', screen_date, bounce_watch_list)
+    print('Impulse pullback WATCHING list |', screen_date, ip_watch_list)
+    print('Bounce ENTER list |', screen_date, bounce_enter_list)
 
 
 if __name__ == '__main__':
