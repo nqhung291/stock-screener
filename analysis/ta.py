@@ -14,6 +14,7 @@ def screener(end_date=date.today()):
     bounce_watch_dict = {}
     bounce_enter_dict = {}
     ip_watch_dict = {}
+    ip_enter_dict = {}
     for (symbol, exchange) in db.get_stock_symbol():
         open, high, low, close, date = db.get_price(symbol, end_date)
         result = bounce_strategy(symbol, open, high, low, close)
@@ -31,7 +32,11 @@ def screener(end_date=date.today()):
             ip_watch_list = ip_watch_dict.get(exchange, [])
             ip_watch_list.append(symbol)
             ip_watch_dict[exchange] = ip_watch_list
-    return bounce_watch_dict, bounce_enter_dict, ip_watch_dict
+        elif result and result[1] == 'enter':
+            ip_enter_list = ip_enter_dict.get(exchange, [])
+            ip_enter_list.append(symbol)
+            ip_enter_dict[exchange] = ip_enter_list
+    return bounce_watch_dict, bounce_enter_dict, ip_watch_dict, ip_enter_dict
 
 
 def bounce_strategy(symbol, open, high, low, close):
@@ -106,18 +111,52 @@ def bounce_strategy(symbol, open, high, low, close):
 
 
 def impulse_pullback(symbol, open, high, low, close):
-    ema_6 = np.round(abstract.EMA(np.array(close), timeperiod=6), 4)[-3:]
-    ema_18 = np.round(abstract.EMA(np.array(close), timeperiod=18), 4)[-3:]
-    macd, macdsignal, macdhist = abstract.MACD(np.array(close), fastperiod=12, slowperiod=26, signalperiod=9)[-3:]
+    num_prev_day = -4
+    ema_6 = np.round(abstract.EMA(np.array(close), timeperiod=6), 4)[num_prev_day:]
+    ema_18 = np.round(abstract.EMA(np.array(close), timeperiod=18), 4)[num_prev_day:]
+    macd_all, macdsignal_all, macdhist_all = abstract.MACD(np.array(close), fastperiod=12, slowperiod=26, signalperiod=9)
+    macd = macd_all[num_prev_day:]
+    macdsignal = macdsignal_all[num_prev_day:]
     result = None
-    cross_signal = False
-    if ema_6[-1] > ema_18[-1] and np.any([i < j for i, j in zip(ema_6[:-1], ema_18[:-1])]):
-        cross_signal = True
-    if not np.isnan(macd).any() \
-            and not np.isnan(macdsignal).any() \
-            and macd[-1] > macdsignal[-1] \
-            and np.any([i < j for i, j in zip(macd[:-1], macdsignal[:-1])]):
-        cross_signal = True
-    if cross_signal and high[today] > high[today - 1]:
+    swing_high_ema = None
+    swing_high_macd = None
+
+    if not np.isnan(ema_6).any() and not np.isnan(ema_18).any() and not np.isnan(macd).any() and not np.isnan(macdsignal).any():
+        for prev_date in range(-2, num_prev_day - 1, -1):
+            if swing_high_ema is None and ema_6[-1] > ema_18[-1] and ema_6[prev_date] <= ema_18[prev_date]:
+                swing_high_ema = prev_date + 1
+            if swing_high_macd is None and macd[-1] > macdsignal[-1] and macd[prev_date] <= macdsignal[prev_date]:
+                swing_high_macd = prev_date + 1
+
+    today_candle = {
+        'high': high[-1],
+        'low': low[-1]
+    }
+    swing_high_prev_candle = {
+        'high': high[-2],
+        'low': low[-2]
+    }
+    if (swing_high_ema == -1 or swing_high_macd == -1) and is_higher_candle(swing_high_prev_candle, today_candle):
         return symbol, 'watch'
-    return None
+
+    if swing_high_ema is not None:
+        ema_sw_candle = {
+            'high': high[swing_high_ema],
+            'low': low[swing_high_ema]
+        }
+        if high[swing_high_ema] > high[swing_high_ema - 1] \
+                and all(high[swing_high_ema] > i for i in high[swing_high_ema + 1:-1]) \
+                and is_pullback_candle(ema_sw_candle, today_candle):
+            result = (symbol, 'enter')
+
+    if swing_high_macd is not None:
+        macd_sw_candle = {
+            'high': high[swing_high_macd],
+            'low': low[swing_high_macd]
+        }
+        if high[swing_high_macd] > high[swing_high_macd - 1] \
+                and all(high[swing_high_macd] > i for i in high[swing_high_macd + 1:-1]) \
+                and is_pullback_candle(macd_sw_candle, today_candle):
+            result = (symbol, 'enter')
+
+    return result

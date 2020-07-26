@@ -33,3 +33,14 @@ def is_confirmation_candle(reversal_candle: dict, confirmation_candle: dict):
 def is_bullish_candle(open, close):
     return close > open
 
+
+def is_inside_bar(prev_candle: dict, this_candle: dict):
+    return this_candle['high'] < prev_candle['high'] and this_candle['low'] > prev_candle['low']
+
+
+def is_pullback_candle(prev_candle: dict, this_candle: dict):
+    return this_candle['high'] < prev_candle['high'] and this_candle['low'] <= prev_candle['low']
+
+
+def is_higher_candle(prev_candle: dict, this_candle: dict):
+    return this_candle['high'] > prev_candle['high'] and this_candle['low'] >= prev_candle['low']
