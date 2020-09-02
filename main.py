@@ -1,8 +1,10 @@
+import sys, getopt
 from crawler import DataCrawler
 from db import db
 import json
 from analysis import ta
-from datetime import datetime, date, timedelta
+from datetime import date
+import datetime
 
 
 def load_stock_list(exchange):
@@ -38,12 +40,17 @@ def crawl_one_stock():
 
 
 def run_daily_crawl():
-    # crawl()
-    screen_date = '15/07/2020'
-    bounce_watch_list, bounce_enter_list, ip_watch_list = ta.screener(screen_date)
-    print('Bounce WATCHING list |', screen_date, bounce_watch_list)
-    print('Impulse pullback WATCHING list |', screen_date, ip_watch_list)
-    print('Bounce ENTER list |', screen_date, bounce_enter_list)
+    crawl_date = date.today()
+    if date.today().weekday() > 4:
+        delta = datetime.timedelta(date.today().weekday() - 4)
+        crawl_date = date.today() - delta
+    crawl_date_str = crawl_date.strftime("%d/%m/%Y")
+    crawl(start_date=crawl_date_str, end_date=crawl_date_str)
+    bounce_watch_list, bounce_enter_list, ip_watch_list, ip_enter_list = ta.screener(crawl_date)
+    print('Bounce WATCHING list on', crawl_date, bounce_watch_list)
+    print('Impulse pullback WATCHING list on', crawl_date, ip_watch_list)
+    print('Bounce ENTER list on', crawl_date, bounce_enter_list)
+    print('Impulse pullback ENTER list on', crawl_date, ip_enter_list)
 
 
 if __name__ == '__main__':
