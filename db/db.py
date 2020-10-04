@@ -114,3 +114,15 @@ def get_price(symbol, end_date=datetime.today()):
             return open, high, low, close, date
         except Error as error:
             print(error)
+
+
+def get_max_date():
+    with connect_db() as (conn, cursor):
+        try:
+            query = 'select max(date) from stock.stock.stock_price'
+            cursor.execute(query)
+            row = cursor.fetchone()
+            cursor.close()
+            return row[0]
+        except Error as error:
+            print(error)
