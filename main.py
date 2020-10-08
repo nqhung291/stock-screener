@@ -48,15 +48,16 @@ def run_daily_crawl():
         if latest_date < end_date:
             start_date = (latest_date + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
             crawl(start_date=start_date, end_date=end_date.strftime("%d/%m/%Y"))
-    elif latest_date < date.today() and datetime.datetime.now().hour > 16:
+    elif latest_date < date.today():
         start_date = (latest_date + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
         crawl(start_date=start_date, end_date=end_date.strftime("%d/%m/%Y"))
-    latest_date = db.get_max_date()
-    bounce_watch_list, bounce_enter_list, ip_watch_list, ip_enter_list = ta.screener(latest_date)
-    print('Bounce WATCHING list on', latest_date, bounce_watch_list)
-    print('Impulse pullback WATCHING list on', latest_date, ip_watch_list)
-    print('Bounce ENTER list on', latest_date, bounce_enter_list)
-    print('Impulse pullback ENTER list on', latest_date, ip_enter_list)
+    screen_date = db.get_max_date()
+    # screen_date = date(2020, 10, 1)
+    bounce_watch_list, bounce_enter_list, ip_watch_list, ip_enter_list = ta.screener(screen_date)
+    result = f'Screener result on {screen_date}:\nBounce WATCHING list {bounce_watch_list}' \
+             f'\nImpulse pullback WATCHING list on {ip_watch_list} \n' \
+             f'Bounce ENTER list on {bounce_enter_list} \nImpulse pullback ENTER list on {ip_enter_list}'
+    print(result)
 
 
 if __name__ == '__main__':
