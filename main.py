@@ -34,6 +34,8 @@ def crawl(exchange=None, start_date=date.today().strftime(utils.DATE_FORMAT), en
 def run_daily_crawl():
     latest_date = db.get_max_date()
     end_date = date.today()
+    if datetime.datetime.now().hour < 16:
+        end_date = date.today() - datetime.timedelta(days=1)
     if date.today().weekday() > 4:
         delta = datetime.timedelta(date.today().weekday() - 4)
         end_date = date.today() - delta
