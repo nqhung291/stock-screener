@@ -1,10 +1,10 @@
-import sys, getopt
 from crawler import DataCrawler
 from db import db
 import json
 from analysis import ta
 from datetime import date
 import datetime
+from crawler import utils
 
 
 def load_stock_list(exchange):
@@ -20,7 +20,7 @@ def save_stock_list():
     db.save_stock_list(stock_list_tuple)
 
 
-def crawl(exchange=None, start_date=date.today().strftime("%d/%m/%Y"), end_date=date.today().strftime("%d/%m/%Y")):
+def crawl(exchange=None, start_date=date.today().strftime(utils.DATE_FORMAT), end_date=date.today().strftime(utils.DATE_FORMAT)):
     for (stock, exchange) in db.get_stock_symbol(exchange):
         crawler = DataCrawler.DataCrawler(stock, start_date=start_date, end_date=end_date)
         data = crawler.crawl()
@@ -31,14 +31,6 @@ def crawl(exchange=None, start_date=date.today().strftime("%d/%m/%Y"), end_date=
             print('ERROR crawl', exchange, ':', stock, 'from:', start_date, 'to:', end_date)
 
 
-def crawl_one_stock():
-    crawler = DataCrawler.DataCrawler('VCB', start_date='11/06/2020', end_date='12/06/2020')
-    data = crawler.crawl()
-    if data is not None:
-        db.insert_stock_price(data)
-    print(data)
-
-
 def run_daily_crawl():
     latest_date = db.get_max_date()
     end_date = date.today()
@@ -46,17 +38,17 @@ def run_daily_crawl():
         delta = datetime.timedelta(date.today().weekday() - 4)
         end_date = date.today() - delta
         if latest_date < end_date:
-            start_date = (latest_date + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
-            crawl(start_date=start_date, end_date=end_date.strftime("%d/%m/%Y"))
-    elif latest_date < date.today():
-        start_date = (latest_date + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
-        crawl(start_date=start_date, end_date=end_date.strftime("%d/%m/%Y"))
-    screen_date = db.get_max_date()
-    # screen_date = date(2020, 10, 1)
+            start_date = (latest_date + datetime.timedelta(days=1)).strftime(utils.DATE_FORMAT)
+            crawl(start_date=start_date, end_date=end_date.strftime(utils.DATE_FORMAT))
+    elif latest_date < date.today() - datetime.timedelta(days=1) or \
+            (latest_date == date.today() - datetime.timedelta(days=1) and datetime.datetime.today().hour > 16):
+        start_date = (latest_date + datetime.timedelta(days=1)).strftime(utils.DATE_FORMAT)
+        crawl(start_date=start_date, end_date=end_date.strftime(utils.DATE_FORMAT))
+    screen_date = latest_date
     bounce_watch_list, bounce_enter_list, ip_watch_list, ip_enter_list = ta.screener(screen_date)
     result = f'Screener result on {screen_date}:\nBounce WATCHING list {bounce_watch_list}' \
-             f'\nImpulse pullback WATCHING list on {ip_watch_list} \n' \
-             f'Bounce ENTER list on {bounce_enter_list} \nImpulse pullback ENTER list on {ip_enter_list}'
+             f'\nImpulse pullback WATCHING list {ip_watch_list} \n' \
+             f'Bounce ENTER list {bounce_enter_list} \nImpulse pullback ENTER list {ip_enter_list}'
     print(result)
 
 

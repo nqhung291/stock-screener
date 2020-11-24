@@ -1,5 +1,6 @@
 from analysis import ta
-from datetime import date, timedelta
+from crawler import DataCrawler
+from db import db
 
 
 def run_daily_crawl(screen_date):
@@ -11,11 +12,10 @@ def run_daily_crawl(screen_date):
     print('=====================================')
 
 
+def get_latest_day():
+    print(db.get_max_date())
+
+
 if __name__ == '__main__':
-    start_date = date(2020, 7, 20)
-    end_date = date(2020, 7, 24)
-    delta = timedelta(days=1)
-    while start_date <= end_date:
-        if start_date.weekday() not in [5, 6]:
-            run_daily_crawl(start_date)
-        start_date += delta
+    crawler = DataCrawler.DataCrawler('VCB', start_date='2020-11-18', end_date='2020-11-20')
+    crawler.crawl()
