@@ -1,10 +1,10 @@
 from crawler import DataCrawler
 from db import db
 import json
-from analysis import ta
 from datetime import date
 import datetime
 from crawler import utils
+from utils.helpers import get_screen_result
 
 
 def load_stock_list(exchange):
@@ -46,12 +46,7 @@ def run_daily_crawl():
             (latest_date == date.today() - datetime.timedelta(days=1) and datetime.datetime.today().hour > 16):
         start_date = (latest_date + datetime.timedelta(days=1)).strftime(utils.DATE_FORMAT)
         crawl(start_date=start_date, end_date=end_date.strftime(utils.DATE_FORMAT))
-    screen_date = latest_date
-    bounce_watch_list, bounce_enter_list, ip_watch_list, ip_enter_list = ta.screener(screen_date)
-    result = f'Screener result on {screen_date}:\nBounce WATCHING list {bounce_watch_list}' \
-             f'\nImpulse pullback WATCHING list {ip_watch_list} \n' \
-             f'Bounce ENTER list {bounce_enter_list} \nImpulse pullback ENTER list {ip_enter_list}'
-    print(result)
+    get_screen_result(date.today() - datetime.timedelta(days=10), date.today())
 
 
 if __name__ == '__main__':
