@@ -62,6 +62,27 @@ def insert_stock_price(stock_price_list):
             print(error)
 
 
+def insert_index_price(index_price_list):
+    with connect_db() as (conn, cursor):
+        try:
+            insert_query = 'insert into stock.stock.index_price (' \
+                           'index_id, date, change_amount, change_percent, ' \
+                           'open, high, low, close, ' \
+                           'volume_match, volume_reconcile, volume_accumulated' \
+                           ') values (' \
+                           '(select id from stock.stock.index_symbol where symbol = %(index)s),' \
+                           '%(date)s, %(change_amount)s, %(change_percent)s, %(open)s, %(high)s, %(low)s, ' \
+                           '%(close)s, %(volume_match)s, %(volume_reconcile)s, %(volume_accumulated)s' \
+                           ') on conflict on constraint index_id_date_unique do nothing'
+
+            execute_batch(cursor, insert_query, index_price_list)
+            cursor.close()
+            conn.commit()
+        except Error as error:
+            conn.rollback()
+            print(error)
+
+
 def get_stock_symbol(exchange=None):
     with connect_db() as (conn, cursor):
         try:
@@ -81,6 +102,22 @@ def get_stock_symbol(exchange=None):
                 if not row:
                     break
                 yield row
+        except Error as error:
+            print(error)
+
+
+def get_index_symbol():
+    with connect_db() as (conn, cursor):
+        try:
+            query = 'select symbol from stock.stock.index_symbol'
+            cursor.execute(query)
+            row = cursor.fetchall()
+            result = []
+            if row is None:
+                return
+            for index in row:
+                result.append(index[0])
+            return result
         except Error as error:
             print(error)
 

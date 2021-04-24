@@ -1,4 +1,5 @@
 from crawler import DataCrawler
+from crawler.index_crawler import crawl_index, crawl_all_index
 from db import db
 import json
 from datetime import date
@@ -26,9 +27,9 @@ def crawl(exchange=None, start_date=date.today().strftime(utils.DATE_FORMAT), en
         data = crawler.crawl()
         if data is not None:
             db.insert_stock_price(data)
-            print('done crawl', exchange, ':', stock, 'from:', start_date, 'to:', end_date)
+            print('done crawl', exchange + ':', stock, 'from:', start_date, 'to:', end_date)
         else:
-            print('ERROR crawl', exchange, ':', stock, 'from:', start_date, 'to:', end_date)
+            print('ERROR crawl', exchange + ':', stock, 'from:', start_date, 'to:', end_date)
 
 
 def run_daily_crawl():
@@ -42,10 +43,12 @@ def run_daily_crawl():
         if latest_date < end_date:
             start_date = (latest_date + datetime.timedelta(days=1)).strftime(utils.DATE_FORMAT)
             crawl(start_date=start_date, end_date=end_date.strftime(utils.DATE_FORMAT))
+            crawl_all_index(start_date=start_date, end_date=end_date.strftime(utils.DATE_FORMAT))
     elif latest_date < date.today() - datetime.timedelta(days=1) or \
             (latest_date == date.today() - datetime.timedelta(days=1) and datetime.datetime.today().hour > 16):
         start_date = (latest_date + datetime.timedelta(days=1)).strftime(utils.DATE_FORMAT)
         crawl(start_date=start_date, end_date=end_date.strftime(utils.DATE_FORMAT))
+        crawl_all_index(start_date=start_date, end_date=end_date.strftime(utils.DATE_FORMAT))
     get_screen_result(date.today() - datetime.timedelta(days=10), date.today())
 
 

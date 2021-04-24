@@ -57,11 +57,8 @@ class VndirectAPILoader(BaseDataLoader):
             "page": 1,
             "q": query
         }
-        res = requests.get(utils.API_VNDIRECT, params=params)
+        res = requests.get(utils.API_VNDIRECT + '/stock_prices', params=params)
         data = res.json()['data']
         return utils.transform_api_to_db(data)
-
-
-
 
 
