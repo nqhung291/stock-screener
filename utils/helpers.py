@@ -18,3 +18,9 @@ def get_screen_result(start_date=date.today(), end_date=date.today()):
                  f'Bounce ENTER list {bounce_enter_list} \nImpulse pullback ENTER list {ip_enter_list}'
         print('====================')
         print(result)
+
+
+def clean_text(text: str):
+    if text is None:
+        return text
+    return text.strip()

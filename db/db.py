@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from psycopg2 import Error, pool
 from psycopg2.extras import execute_batch, execute_values
 from datetime import datetime, timedelta
+from utils import helpers
 
 POSTGRES_HOST = '172.17.0.2'
 POSTGRES_PORT = '5432'
@@ -153,6 +154,20 @@ def get_price(symbol, end_date=datetime.today()):
             print(error)
 
 
+def get_min_symbol_date(symbol):
+    with connect_db() as (conn, cursor):
+        try:
+            query = 'select min(date) from stock.stock_price as p ' \
+                    'left join stock.stock_symbol as s on p.symbol_id = s.id ' \
+                    'where s.symbol = \'{symbol}\''.format(symbol=symbol)
+            cursor.execute(query)
+            row = cursor.fetchone()
+            cursor.close()
+            return row[0]
+        except Error as error:
+            print(error)
+
+
 def get_max_date():
     with connect_db() as (conn, cursor):
         try:
@@ -161,5 +176,23 @@ def get_max_date():
             row = cursor.fetchone()
             cursor.close()
             return row[0]
+        except Error as error:
+            print(error)
+
+
+def insert_stock_info(symbol, data):
+    address = helpers.clean_text(data['vnAddress'])
+    name = helpers.clean_text(data['vnName'])
+    summary = helpers.clean_text(data['vnSummary'])
+    website = helpers.clean_text(data['website'])
+    with connect_db() as (conn, cursor):
+        try:
+            query = 'update stock.stock.stock_symbol set ' \
+                    'address = \'{address}\', name = \'{name}\', summary = \'{summary}\', website = \'{website}\' ' \
+                    'where symbol = \'{symbol}\''\
+                .format(address=address, name=name, summary=summary, website=website, symbol=symbol)
+            cursor.execute(query)
+            conn.commit()
+            cursor.close()
         except Error as error:
             print(error)

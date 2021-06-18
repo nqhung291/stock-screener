@@ -1,11 +1,12 @@
 from crawler import DataCrawler
-from crawler.index_crawler import crawl_index, crawl_all_index
+from crawler.index_crawler import crawl_all_index
 from db import db
 import json
 from datetime import date
 import datetime
 from crawler import utils
 from utils.helpers import get_screen_result
+import requests
 
 
 def load_stock_list(exchange):
@@ -21,15 +22,22 @@ def save_stock_list():
     db.save_stock_list(stock_list_tuple)
 
 
-def crawl(exchange=None, start_date=date.today().strftime(utils.DATE_FORMAT), end_date=date.today().strftime(utils.DATE_FORMAT)):
+def crawl_one_symbol(stock, exchange, start_date, end_date):
+    crawler = DataCrawler.DataCrawler(stock, start_date=start_date, end_date=end_date)
+    data = crawler.crawl()
+    if data is not None:
+        db.insert_stock_price(data)
+        print('done crawl', exchange + ':', stock, 'from:', start_date, 'to:', end_date)
+    else:
+        print('ERROR crawl', exchange + ':', stock, 'from:', start_date, 'to:', end_date)
+
+
+def crawl(exchange=None,
+          start_date=date.today().strftime(utils.DATE_FORMAT),
+          end_date=date.today().strftime(utils.DATE_FORMAT)
+          ):
     for (stock, exchange) in db.get_stock_symbol(exchange):
-        crawler = DataCrawler.DataCrawler(stock, start_date=start_date, end_date=end_date)
-        data = crawler.crawl()
-        if data is not None:
-            db.insert_stock_price(data)
-            print('done crawl', exchange + ':', stock, 'from:', start_date, 'to:', end_date)
-        else:
-            print('ERROR crawl', exchange + ':', stock, 'from:', start_date, 'to:', end_date)
+        crawl_one_symbol(stock, exchange, start_date, end_date)
 
 
 def run_daily_crawl():
@@ -52,5 +60,32 @@ def run_daily_crawl():
     get_screen_result(date.today() - datetime.timedelta(days=10), date.today())
 
 
+def run_custom_crawl(start_date, end_date):
+    crawl(start_date=start_date, end_date=end_date)
+
+
+def run_crawl_to_min_date(start_date):
+    for (stock, exchange) in db.get_stock_symbol():
+        end_date = db.get_min_symbol_date(stock) - datetime.timedelta(days=1)
+        end_date_str = date.strftime(end_date, utils.DATE_FORMAT)
+        if start_date > end_date_str:
+            continue
+        crawl_one_symbol(stock, exchange, start_date, end_date_str)
+
+
+def insert_stock_info():
+    for (symbol, _) in db.get_stock_symbol():
+        params_string = 'code:{symbol}'.format(symbol=symbol)
+        params_dict = {
+            'q': params_string
+        }
+        response = requests.get('https://finfo-api.vndirect.com.vn/v4/company_profiles', params=params_dict)
+        data = response.json()['data']
+        db.insert_stock_info(symbol, data[0])
+
+
 if __name__ == '__main__':
     run_daily_crawl()
+    # run_custom_crawl('2010-01-01', '2021-05-06')
+    # run_crawl_to_min_date('2014-02-01')
+    # insert_stock_info()
